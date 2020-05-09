@@ -1,0 +1,39 @@
+ROSTemplateFormatVersion: '2015-09-01'
+Transform: 'Aliyun::Serverless-2018-04-03'
+Resources:
+  connectivity-checker:
+    Type: 'Aliyun::Serverless::Service'
+    Properties:
+      Description: This is connectivity checker service
+      ## Comment out below configuration to test vpc connectivity.
+      # Policies:
+      #   - AliyunECSNetworkInterfaceManagementAccess
+      # VpcConfig:
+      #   VpcId: vpc-bp1f2f60ozzt1nbm7rg6f
+      #   VSwitchIds: ["vsw-bp195qaeny4em9ltjbyfk"]
+      #   SecurityGroupId: sg-bp16vh833x8eu8ac5st2
+      InternetAccess: true
+    checker:
+      Type: 'Aliyun::Serverless::Function'
+      Properties:
+        Handler: index.event_handler
+        Runtime: python3
+        Timeout: 30
+        MemorySize: 128
+        CodeUri: connectivity-checker/checker
+    http-checker:
+      Type: 'Aliyun::Serverless::Function'
+      Properties:
+        Handler: index.http_handler
+        Runtime: python3
+        Timeout: 30
+        MemorySize: 128
+        CodeUri: connectivity-checker/checker
+      Events:
+        httpTrigger:
+          Type: HTTP
+          Properties:
+            AuthType: ANONYMOUS
+            Methods:
+              - GET
+              - POST
